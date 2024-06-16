@@ -41,7 +41,7 @@ export const sendMessage = async (req, res) => {
 
     await Promise.all([conversation.save(), newMessage.save()]) //this will run in parallel
 
-    res.status(201).json({ newMessage })
+    res.status(201).json(newMessage)
   } catch (error) {
     console.log('Error in the send message controller: ', error.message)
     res.status(500).json({ error: 'Internal server error' })
@@ -53,18 +53,17 @@ export const getMessages = async (req, res) => {
     const { id: userToChatId } = req.params
     const senderId = req.user._id
 
-    // The populate method is used to replace the specified path in the document with the associated document from other collection. Here, it is used to replace the messages array which has just _id of msgs with the actual messages.
     const conversation = await Conversation.findOne({
       participants: { $all: [senderId, userToChatId] },
-    }).populate('messages') // Replacing the messages array with the actual messages
+    }).populate('messages') // NOT REFERENCE BUT ACTUAL MESSAGES
 
-    if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' })
-    }
+    if (!conversation) return res.status(200).json([])
 
-    res.status(200).json(conversation.messages)
+    const messages = conversation.messages
+
+    res.status(200).json(messages)
   } catch (error) {
-    console.log('Error in the get message controller: ', error.message)
+    console.log('Error in getMessages controller: ', error.message)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
