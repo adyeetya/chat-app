@@ -5,11 +5,12 @@ import authRouter from './routes/auth.routes.js'
 import messageRouter from './routes/message.routes.js'
 import userRouter from './routes/user.routes.js'
 import connectToMongodb from './db/connectToMongodb.js'
+import { app, server } from './socket/socket.js'
 
 dotenv.config()
 const PORT = process.env.PORT || 3000
 
-const app = express()
+
 
 app.use(express.json()) //to parse the incoming request body with JSON payload
 app.use(cookieParser()) //to parse the cookie in the protect route middleware used for authenticating user
@@ -22,7 +23,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/messages', messageRouter)
 app.use('/api/users', userRouter)
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectToMongodb()
   console.log(`server is running on port: ${PORT}`)
 })

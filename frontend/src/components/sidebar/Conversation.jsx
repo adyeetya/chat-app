@@ -1,12 +1,16 @@
 import React from 'react'
 import useConversation from '../../zustand/useConversation'
 import { extractTime } from '../../utils/extractTime'
+import { useSocketContext } from '../../context/SocketContext'
 const Conversation = ({ conversation, lastMessage, lastMessageFromMe }) => {
   const { selectedConversation, setSelectedConversation } = useConversation()
   const isSelected = conversation._id === selectedConversation?._id
   // console.log('last message: ', lastMessage)
   const formattedTime = extractTime(lastMessage?.createdAt)
   // console.log('formattedTime: ', formattedTime)
+
+  const { onlineUsers } = useSocketContext()
+  const isOnline = onlineUsers.includes(conversation._id)
   return (
     <>
       <div
@@ -15,7 +19,7 @@ const Conversation = ({ conversation, lastMessage, lastMessageFromMe }) => {
           isSelected && 'bg-blue-500'
         } ${!isSelected && 'hover:bg-slate-800'}`}
       >
-        <div className="avatar online">
+        <div className={`avatar ${isOnline ? 'online' : ''}`}>
           <div className="w-12 rounded-full">
             <img alt="user avatar" src={conversation.profilePic} />
           </div>
@@ -24,11 +28,8 @@ const Conversation = ({ conversation, lastMessage, lastMessageFromMe }) => {
           <div className="flex gap-3 justify-between">
             <p className="font-bold text-gray-200">{conversation.fullName}</p>
             <div className="flex flex-col justify-end">
-              {lastMessage && (
-                <span className="text-sm text-gray-200">
-                  {lastMessageFromMe ? 'You: ' : `: `}
-                  {lastMessage.message}
-                </span>
+              {lastMessage && !lastMessageFromMe && (
+                <span className="text-sm text-gray-200">New Message</span>
               )}
               <div className="flex justify-end">
                 <span className="text-[10px] text-gray-200">
